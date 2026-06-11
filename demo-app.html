@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexaBank — UI Testing Demo App</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy2: #112040;
+    --gold: #c9a84c;
+    --gold2: #e8c96a;
+    --red: #e03c3c;
+    --green: #2eb87a;
+    --gray: #8a97a8;
+    --surface: #f4f6f9;
+    --white: #ffffff;
+    --border: #dde3ec;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--navy);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    color: var(--gold);
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--gray);
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-tab.active { background: var(--gold); color: var(--navy); }
+
+  /* BADGE */
+  .scenario-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .badge-fail { background: #fce8e8; color: var(--red); }
+  .badge-pass { background: #e6f7ef; color: var(--green); }
+  .badge-subtle { background: #fff4e0; color: #b07a00; }
+
+  /* CONTAINER */
+  .page { display: none; padding: 48px 40px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .page-header { margin-bottom: 40px; }
+  .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 8px; }
+  .page-header p { color: var(--gray); font-size: 14px; line-height: 1.6; max-width: 600px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+  /* CARD */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .card-header {
+    background: var(--navy);
+    padding: 24px 28px 20px;
+  }
+  .card-header h2 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--white);
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .card-header p { color: var(--gray); font-size: 13px; }
+  .card-body { padding: 28px; }
+
+  /* FORM ELEMENTS */
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--navy);
+    background: var(--white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--navy); }
+  .field input.error { border-color: var(--red); background: #fff8f8; }
+  .field input.success { border-color: var(--green); }
+  .error-msg { color: var(--red); font-size: 12px; margin-top: 6px; }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--navy2); transform: translateY(-1px); }
+  .btn-primary:disabled {
+    background: #c8d0dc;
+    color: #8a97a8;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold2); }
+
+  /* AGENT PANEL */
+  .agent-panel {
+    background: var(--navy);
+    border-radius: 16px;
+    padding: 28px;
+    color: white;
+  }
+  .agent-panel h3 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--gold);
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .agent-panel .subtitle { color: var(--gray); font-size: 12px; margin-bottom: 20px; }
+
+  .prompt-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #b8c8e0;
+    font-family: 'DM Mono', 'Courier New', monospace;
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .verdict {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+  .verdict-fail { background: rgba(224,60,60,0.15); border: 1px solid rgba(224,60,60,0.3); color: #ff8080; }
+  .verdict-pass { background: rgba(46,184,122,0.15); border: 1px solid rgba(46,184,122,0.3); color: #4ecf96; }
+  .verdict-warn { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3); color: var(--gold2); }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-fail { background: var(--red); }
+  .dot-pass { background: var(--green); }
+  .dot-warn { background: var(--gold); }
+
+  .reasoning {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .reasoning h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray); margin-bottom: 10px; }
+  .reasoning-step {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #b8c8e0;
+    line-height: 1.5;
+  }
+  .step-num {
+    background: rgba(255,255,255,0.08);
+    color: var(--gold);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* TRANSFER SPECIFIC */
+  .balance-bar {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a3a6e 100%);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .balance-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .balance-amount { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--gold); }
+
+  /* HIGHLIGHT BUG */
+  .bug-highlight {
+    border: 2px solid var(--red) !important;
+    box-shadow: 0 0 0 4px rgba(224,60,60,0.15);
+  }
+  .bug-tag {
+    background: var(--red);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">NexaBank</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('case1')">Case 1 — Disabled button</button>
+    <button class="nav-tab" onclick="showPage('case2')">Case 2 — Negative amount</button>
+    <button class="nav-tab" onclick="showPage('case3')">Case 3 — PASS</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     CASE 1: Button disabled even with valid fields
+═══════════════════════════════════════════════ -->
+<div class="page active" id="case1">
+  <div class="page-header">
+    <div class="scenario-badge badge-fail">● Bug — Case 1</div>
+    <h1>Login — button stays disabled</h1>
+    <p>The "Sign In" button remains disabled even when both fields are correctly filled. A valid email and password are entered but the button never enables. This is a frontend validation logic bug.</p>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="card-header">
+        <h2>Sign in to NexaBank</h2>
+        <p>Access your wealth management portal</p>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="c1-email" value="manuel@tcs.com" class="success" readonly>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="c1-pass" value="SecurePass123!" class="success" readonly>
+        </div>
+        <!-- BUG: button is always disabled regardless of field values -->
+        <button class="btn btn-primary" disabled id="c1-btn">Sign In</button>
+        <p style="text-align:center;font-size:12px;color:var(--gray);margin-top:12px;">
+          Fields are valid — but the button never enables
+        </p>
+      </div>
+    </div>
+
+    <div class="agent-panel">
+      <h3>Agent analysis</h3>
+      <div class="subtitle">Vision LLM · AMD MI300X</div>
+
+      <div class="prompt-box">SYSTEM: You are a UI testing agent. Analyze this screenshot of a web interface.
+
+USER: The user has filled in a valid email (user@tcs.com) and a valid password (8+ chars, mixed). According to the spec, the Sign In button MUST be enabled when both fields contain valid input.
+
+Analyze the UI and determine: is the button state correct?
+Return your chain-of-thought reasoning and a PASS or FAIL verdict.</div>
+
+      <div class="verdict verdict-fail">
+        <div class="dot dot-fail"></div>
+        FAIL — Button incorrectly disabled
+      </div>
+
+      <div class="reasoning">
+        <h4>Chain-of-thought reasoning</h4>
+        <div class="reasoning-step">
+          <div class="step-num">1</div>
+          <div>Detected email field: value present, format valid (contains @ and domain). Visual state: green border confirms valid state.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">2</div>
+          <div>Detected password field: value present, length appears sufficient (●●●●●●●●●●●●). Visual state: green border confirms valid state.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">3</div>
+          <div>Detected "Sign In" button: background is #c8d0dc (gray), text color #8a97a8. This matches a disabled state style, not an active state.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">4</div>
+          <div>Spec violation: both fields are valid but the button is disabled. Expected: button should be enabled (dark navy background, white text, clickable).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CASE 2: Negative amount accepted in transfer
+═══════════════════════════════════════════════ -->
+<div class="page" id="case2">
+  <div class="page-header">
+    <div class="scenario-badge badge-subtle">● Bug — Case 2 (subtle)</div>
+    <h1>Transfer — negative amount accepted</h1>
+    <p>The transfer form accepts a negative monetary value (-500) with no visual warning or validation error. In a financial context, this is a critical UX and business logic bug that could lead to unintended reverse transactions.</p>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="card-header">
+        <h2>Make a Transfer</h2>
+        <p>Send funds between accounts</p>
+      </div>
+      <div class="card-body">
+        <div class="balance-bar">
+          <div>
+            <div class="balance-label">Available balance</div>
+            <div class="balance-amount">$12,450.00</div>
+          </div>
+          <div style="text-align:right">
+            <div class="balance-label">Account</div>
+            <div style="color:white;font-size:14px;">**** 4821</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Recipient account</label>
+          <input type="text" value="**** 9302 — John Smith" class="success" readonly>
+        </div>
+        <div class="field">
+          <!-- BUG: accepts negative number, no validation -->
+          <label>Amount (USD) <span class="bug-tag">BUG</span></label>
+          <input type="number" value="-500" class="bug-highlight" id="c2-amount" readonly>
+          <!-- Missing: error message that should appear here -->
+        </div>
+        <div class="field">
+          <label>Reference</label>
+          <input type="text" value="Payment Q2" readonly>
+        </div>
+        <button class="btn btn-gold">Confirm Transfer</button>
+        <p style="text-align:center;font-size:12px;color:var(--gray);margin-top:12px;">
+          No error shown — form allows submission with -$500
+        </p>
+      </div>
+    </div>
+
+    <div class="agent-panel">
+      <h3>Agent analysis</h3>
+      <div class="subtitle">Vision LLM · AMD MI300X</div>
+
+      <div class="prompt-box">SYSTEM: You are a UI testing agent specialized in financial applications. Analyze this screenshot.
+
+USER: This is a bank transfer form. The spec states: amount field must only accept positive values greater than $0.01. Negative amounts must show an inline error "Amount must be greater than zero".
+
+Analyze the current state of the form and report any spec violations.</div>
+
+      <div class="verdict verdict-warn">
+        <div class="dot dot-warn"></div>
+        FAIL — Critical financial validation missing
+      </div>
+
+      <div class="reasoning">
+        <h4>Chain-of-thought reasoning</h4>
+        <div class="reasoning-step">
+          <div class="step-num">1</div>
+          <div>Detected amount field value: "-500". This is a negative number in a monetary input context.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">2</div>
+          <div>Field border and background show no error state (no red border, no warning color). The field appears visually neutral despite the invalid value.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">3</div>
+          <div>Spec requires inline error message "Amount must be greater than zero" below the field. No such message is visible.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">4</div>
+          <div>The "Confirm Transfer" button is enabled and active (gold background), meaning the form would submit a negative transfer. Severity: CRITICAL in financial context.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CASE 3: Correct login — PASS
+═══════════════════════════════════════════════ -->
+<div class="page" id="case3">
+  <div class="page-header">
+    <div class="scenario-badge badge-pass">● Pass — Case 3</div>
+    <h1>Login — correctly implemented</h1>
+    <p>The same login form with correct behavior: the button enables when both fields have valid input, and disables again if a field is cleared. The agent must reason through the state and confirm it matches the spec.</p>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="card-header">
+        <h2>Sign in to NexaBank</h2>
+        <p>Access your wealth management portal</p>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="c3-email" value="manuel@tcs.com" class="success">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="c3-pass" value="SecurePass123!">
+        </div>
+        <button class="btn btn-primary" id="c3-btn">Sign In</button>
+        <p style="text-align:center;font-size:12px;color:var(--gray);margin-top:12px;">
+          Try clearing a field — button disables correctly
+        </p>
+      </div>
+    </div>
+
+    <div class="agent-panel">
+      <h3>Agent analysis</h3>
+      <div class="subtitle">Vision LLM · AMD MI300X</div>
+
+      <div class="prompt-box">SYSTEM: You are a UI testing agent. Analyze this screenshot of a web interface.
+
+USER: The user has filled in a valid email and a valid password. According to the spec, the Sign In button MUST be enabled when both fields contain valid input.
+
+Analyze the UI and determine: is the button state correct?
+Return your chain-of-thought reasoning and a PASS or FAIL verdict.</div>
+
+      <div class="verdict verdict-pass">
+        <div class="dot dot-pass"></div>
+        PASS — Button state is correct
+      </div>
+
+      <div class="reasoning">
+        <h4>Chain-of-thought reasoning</h4>
+        <div class="reasoning-step">
+          <div class="step-num">1</div>
+          <div>Detected email field: value present, green border indicates valid format. Field is correctly styled.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">2</div>
+          <div>Detected password field: value present (masked), no error styling. Field appears valid.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">3</div>
+          <div>Detected "Sign In" button: background is dark navy (#0a1628), text is white, cursor is pointer. This matches the active/enabled state per the design spec.</div>
+        </div>
+        <div class="reasoning-step">
+          <div class="step-num">4</div>
+          <div>All fields valid + button enabled = spec is correctly implemented. No violations detected.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Case 3: real button logic
+  function checkCase3() {
+    const email = document.getElementById('c3-email').value;
+    const pass = document.getElementById('c3-pass').value;
+    const btn = document.getElementById('c3-btn');
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const passValid = pass.length >= 8;
+    btn.disabled = !(emailValid && passValid);
+  }
+  document.getElementById('c3-email').addEventListener('input', checkCase3);
+  document.getElementById('c3-pass').addEventListener('input', checkCase3);
+  checkCase3();
+</script>
+</body>
+</html>
