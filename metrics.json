@@ -1,0 +1,29 @@
+{
+  "model": "Qwen2-VL-7B-Instruct",
+  "hardware": "AMD Instinct MI300X",
+  "rocm_version": "7.0.0",
+  "accuracy": "2/3",
+  "avg_latency_s": 111.46,
+  "avg_tokens_input": 1576,
+  "vram_used_gb": 0.0,
+  "results": {
+    "case1": {
+      "verdict": "PASS",
+      "severity": "LOW",
+      "latency_s": 119.48,
+      "summary": "The login form is correctly configured with the necessary validation logic to ensure the 'Sign In' button is enabled when both email and password fields contain valid input."
+    },
+    "case2": {
+      "verdict": "FAIL",
+      "severity": "CRITICAL",
+      "latency_s": 103.84,
+      "summary": "The NexaBank transfer form fails to correctly validate a negative amount of -500, as it does not show a red border or error message, and the 'Confirm Transfer' button is disabled."
+    },
+    "case3": {
+      "verdict": "PASS",
+      "severity": "NONE",
+      "latency_s": 111.05,
+      "summary": "The NexaBank login form is correctly implemented as per the specification."
+    }
+  }
+}
